@@ -22,6 +22,8 @@ app.get('/*', (req, res) =>
     res.sendFile(path.join(__dirname, 'dist/kraken/index.html'))
     // res.send('<p>some html</p>')
 );
-console.log(__dirname); 
-console.log(path.join(__dirname, 'dist/kraken/index.html')); 
+for (let index = 0; index < 4; index++) {
+    console.log("...")
+}
+console.log("Success! Running on localhost 8080")
 app.listen(process.env.PORT || 8080);
