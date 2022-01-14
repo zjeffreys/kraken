@@ -12,6 +12,7 @@
 }
 .list-group-item{
     line-height: 12px;
+    border: none;
 }
 li{
     line-height: 12px;

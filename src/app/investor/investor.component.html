@@ -1,1 +1,17 @@
-<p>investor works!</p>
+<div class="container">
+    <h2 class="text-center">Early Investor Opportunities</h2>
+    <div class="row">
+        <div *ngFor="let op of opportunities;" class="col">
+            <div class="card" style="width:12 rem">
+                <img class="card-img-top" src="/assets/img/invest_img.png" alt="Card image">
+                <div class="card-body lh-1">
+                    <p class="fw-bolder lh-1">{{op.package}}</p>
+                    <ul class="list-group">
+                        <li class="list-group-item" *ngFor="let c of op.contains;">{{c}}</li>
+                    </ul>
+                </div>
+              </div>
+
+        </div>
+    </div>
+</div>

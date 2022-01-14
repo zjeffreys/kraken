@@ -1,1 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+/* TODO: You can add global styles to this file, and also import other style files */
+body{
+    background-color: #121212 !important;
+}
+.card{
+    background-color: rgb(109, 109, 109) !important;
+}

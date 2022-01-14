@@ -1,1 +1,15 @@
-<p>team works!</p>
+<div class="container">
+    <h2 class="text-center">The Team</h2>
+    <div class="row">
+        <div *ngFor="let member of TEAM; index as i;" class="col">
+            <div class="card" style="width:12 rem">
+                <img class="card-img-top" src="{{member.profile_img}}" alt="Card image">
+                <div class="card-body lh-1">
+                    <p class="fw-bolder lh-1">{{member.name}}</p>
+                    <p class="fw-light lh-1">{{member.title}}</p>
+                </div>
+              </div>
+
+        </div>
+    </div>
+</div>
