@@ -111,16 +111,16 @@ export class HeroComponent implements OnInit {
 
 				mesh1.rotation.x += 0.02;
 				mesh2.rotation.x += 0.02;
-				mesh1.rotation.y += 0.03;
+				mesh1.rotation.y += 0.02;
 				mesh2.rotation.y += 0.02;
 
 				mesh3.rotation.x += 0.02;
-				mesh4.rotation.x += 0.025;
-				mesh3.rotation.y += .025;
+				mesh4.rotation.x += 0.02;
+				mesh3.rotation.y += 0.02;
 				mesh4.rotation.y += 0.02;
 
 				mesh5.rotation.x += 0.02;
-				mesh6.rotation.x += 0.03;
+				mesh6.rotation.x += 0.02;
 				mesh5.rotation.y += 0.02;
 				mesh6.rotation.y += 0.02;
 				renderer.render(scene, camera);
