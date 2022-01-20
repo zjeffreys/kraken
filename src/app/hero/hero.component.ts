@@ -43,7 +43,7 @@ export class HeroComponent implements OnInit {
 			// material.
 			// const cube = new THREE.Mesh(geometry, material);
 			// scene.add(cube);
-			var geometry = new THREE.BoxGeometry(100, 100, 100);
+			var geometry = new THREE.BoxGeometry(200, 100, 100);
 			var geometry2 = new THREE.BoxGeometry(100, 100, 100);
 			// var material = new THREE.MeshLambertMaterial({ color: 0xffffff });
 			// var mesh1 = new THREE.Mesh(geometry, material);
