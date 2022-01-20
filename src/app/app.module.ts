@@ -11,6 +11,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { TeamComponent } from './team/team.component';
 import { InvestorComponent } from './investor/investor.component';
 import { FooterComponent } from './footer/footer.component';
+import { PlaygroundComponent } from './playground/playground.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { FooterComponent } from './footer/footer.component';
     NavbarComponent,
     TeamComponent,
     InvestorComponent,
-    FooterComponent
+    FooterComponent,
+    PlaygroundComponent
   ],
   imports: [
     BrowserModule, 
