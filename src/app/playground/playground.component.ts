@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import * as dat from 'lil-gui'
 
+
 @Component({
   selector: 'app-playground',
   templateUrl: './playground.component.html',
@@ -20,16 +21,23 @@ export class PlaygroundComponent implements OnInit {
 
       const parameters = {
         color: 0xff0000,
-        spin: () =>
-    {
-        gsap.to(cube.rotation, { duration: 1, y: cube.rotation.y + Math.PI * 2 })
-    }
-    }
+        spin: () => {
+          gsap.to(cube.rotation, { duration: 1, y: cube.rotation.y + Math.PI * 2 })
+        }
+      }
 
       // SCENE
       const scene = new THREE.Scene();
       const axesHelper = new THREE.AxesHelper(5);
       scene.add(axesHelper);
+      // Lighting 
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+      scene.add(ambientLight)
+      const pointLight = new THREE.PointLight(0xffffff, 0.5)
+      pointLight.position.x = 2
+      pointLight.position.y = 3
+      pointLight.position.z = 4
+      scene.add(pointLight)
 
 
       // CAMERA
@@ -48,16 +56,68 @@ export class PlaygroundComponent implements OnInit {
 
       // OBJECTS
       // Create an empty BufferGeometry
-      const geometry = new THREE.BoxGeometry(1,1,1,2, 2, 2)
+      // const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
+      const geometry = new THREE.SphereGeometry(1);
+      const geometry2 = new THREE.TorusGeometry(1, 0.35, 32, 100)
+
 
       // Create 50 triangles (450 values)
-      const material = new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
+      // const material = new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
+
+
+
+      // Textures
+      const loadingManager = new THREE.LoadingManager()
+      loadingManager.onStart = () => {
+        console.log('loading started')
+      }
+      loadingManager.onLoad = () => {
+        console.log('loading finished')
+      }
+      loadingManager.onProgress = () => {
+        console.log('loading progressing')
+      }
+      loadingManager.onError = () => {
+        console.log('loading error')
+      }
+
+      const textureLoader = new THREE.TextureLoader(loadingManager)
+      // ...
+      const TEXTURES = 'assets/textures/'
+      const colorTexture = textureLoader.load(TEXTURES.concat('door/color.jpg'))
+      const alphaTexture = textureLoader.load(TEXTURES.concat('door/alpha.jpg'))
+      const heightTexture = textureLoader.load(TEXTURES.concat('door/height.jpg'))
+      const normalTexture = textureLoader.load(TEXTURES.concat('door/normal.jpg'))
+      const ambientOcclusionTexture = textureLoader.load(TEXTURES.concat('door/ambientOcclusion.jpg'))
+      const metalnessTexture = textureLoader.load(TEXTURES.concat('door/metalness.jpg'))
+      const roughnessTexture = textureLoader.load(TEXTURES.concat('door/roughness.jpg'))
+      const checker1 = textureLoader.load(TEXTURES.concat('checkerboard-8x8.png'))
+      const checker2 = textureLoader.load(TEXTURES.concat('checkerboard-1024x1024.png'))
+      const minecraft = textureLoader.load(TEXTURES.concat('minecraft.png'))
+      const matcapTexture = textureLoader.load(TEXTURES.concat('matcaps/1.png'))
+
+      // minecraft.generateMipmaps = false
+      // minecraft.magFilter = THREE.NearestFilter
+
+      // const material = new THREE.MeshBasicMaterial({ map: minecraft })
+      // const material = new THREE.MeshNormalMaterial()
+      // material.flatShading = true
+      // const material = new THREE.MeshMatcapMaterial()
+      const material = new THREE.MeshPhongMaterial()
+      material.shininess = 100
+      material.specular = new THREE.Color(0x1188ff)
+      // material.matcap = matcapTexture
 
       var cube = new THREE.Mesh(geometry, material);
+      var object2 = new THREE.Mesh(geometry2, material);
+      object2.position.setX(4)
       // cube.position.set(0, 0, -300);
       scene.add(cube);
+      scene.add(object2);
 
-      camera.position.z = 3
+
+
+      camera.position.z = 8
       camera.lookAt(cube.position);
       // Controls
       const controls = new OrbitControls(camera, this.canvas.nativeElement)
@@ -95,12 +155,12 @@ export class PlaygroundComponent implements OnInit {
       gui.add(cube, 'visible')
       gui.add(material, 'wireframe')
       gui.add(parameters, 'spin')
-    
-    gui
+
+      gui
         .addColor(parameters, 'color')
-        .onChange(() =>
-        {
-            material.color.set(parameters.color)
+        .onChange(() => {
+          // change back to find color debugger issue
+          // material.color.set(parameters.color)
         })
 
 
