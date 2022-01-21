@@ -81,77 +81,16 @@ export class PlaygroundComponent implements OnInit {
           )
           textGeometry.center()
 
-          const blockGeometry = new THREE.OctahedronGeometry(.25)
+          // const blockGeometry = new THREE.OctahedronGeometry(.25)
           const text = new THREE.Mesh(textGeometry, material)
           const materialBlock = new THREE.MeshStandardMaterial({})
           materialBlock.metalness = 0.75
           materialBlock.roughness = 0.00
           materialBlock.color.set(0x00fdff)
 
-          // materialBlock.color = new THREE.Color( 0xff0faf )
-
-          const block = new THREE.Mesh(blockGeometry, materialBlock)
           scene.add(text)
           scene.background = materialBlock.color.set(parametersBackground.color)
-          
 
-          /**
-           * Particles
-           */
-          // Geometry
-          const particlesGeometry = new THREE.BufferGeometry()
-          const count = 5000
-
-          const positions = new Float32Array(count * 3) // Multiply by 3 because each position is composed of 3 values (x, y, z)
-
-          for (let i = 0; i < count * 3; i++) // Multiply by 3 for same reason
-          {
-            positions[i] = (Math.random() - 0.5) * 10 // Math.random() - 0.5 to have a random value between -0.5 and +0.5
-          }
-
-          particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)) // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
-          // Material
-          const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
-            sizeAttenuation: true
-          })
-          // Points
-          const particles = new THREE.Points(particlesGeometry, particlesMaterial)
-          particlesMaterial.color = new THREE.Color('#00fdff')
-
-
-          /**
- * Textures
- */
-          const textureLoader = new THREE.TextureLoader()
-          const particleTexture = textureLoader.load('assets/textures/matcaps/particles/2.png')
-
-          // ...
-
-          particlesMaterial.map = particleTexture
-          // particlesMaterial.map = particleTexture
-          particlesMaterial.transparent = true
-          particlesMaterial.alphaMap = particleTexture
-          // particlesMaterial.alphaTest = 0.001
-          particlesMaterial.depthWrite = false
-          scene.add(particles)
-          
-
-
-          // Add star cube desing
-          // for(let i = 0; i < 100; i++)
-          // {
-          //     const block = new THREE.Mesh(blockGeometry, materialBlock)
-          //     block.position.x = (Math.random() - 0.5) * 10
-          //     block.position.y = (Math.random() - 0.5) * 10
-          //     block.position.z = (Math.random() - 0.5) * 10
-          //     block.rotation.x = Math.random() * Math.PI
-          //     block.rotation.y = Math.random() * Math.PI
-          //     const scale = Math.random()
-          //     block.scale.set(scale, scale, scale)
-
-          //     scene.add(block)
-          // }
           /**
             * Base
             */
@@ -162,42 +101,85 @@ export class PlaygroundComponent implements OnInit {
               gsap.to(text.rotation, { duration: 1, y: text.rotation.y + Math.PI * 2 })
             }
           }
-          const parametersBlocks = {
-            color: 0x00fdff,
-            spinBlocks: () => {
-              gsap.to(block.rotation, { duration: 1, y: block.rotation.y + Math.PI * 2 })
-            }
-          }
-         
+
+
           const gui = new dat.GUI()
           gui.close()
-          gui.addColor(parametersBackground, 'color').onChange(()=>{
+          gui.addColor(parametersBackground, 'color').onChange(() => {
             scene.background = materialBlock.color.set(parametersBackground.color)
           })
           gui.add(text.position, 'y').min(- 3).max(3).step(0.01).name('text y-axis')
           gui.add(text, 'visible')
           gui.add(materialBlock, 'wireframe')
           gui.add(parameters, 'spinText')
-          gui.add(parametersBlocks, 'spinBlocks')
-          gui.add(block.position, 'y').min(- 3).max(3).step(0.01).name('blocks y-axis')
-          gui.add(block, 'visible')
+          // gui.add(parametersBlocks, 'spinBlocks')
+          // gui.add(block.position, 'y').min(- 3).max(3).step(0.01).name('blocks y-axis')
+          // gui.add(block, 'visible')
 
-          gui.add(materialBlock, 'metalness').min(0).max(1).step(0.0001)
-          gui.add(materialBlock, 'roughness').min(0).max(1).step(0.0001)
+          // gui.add(materialBlock, 'metalness').min(0).max(1).step(0.0001)
+          // gui.add(materialBlock, 'roughness').min(0).max(1).step(0.0001)
 
           gui
             .addColor(parameters, 'color')
             .onChange(() => {
               material.color.set(parameters.color)
             })
-          gui
-            .addColor(parametersBlocks, 'color')
-            .onChange(() => {
-              materialBlock.color.set(parametersBlocks.color)
-            })
+          // gui
+          //   .addColor(parametersBlocks, 'color')
+          //   .onChange(() => {
+          //     materialBlock.color.set(parametersBlocks.color)
+          //   })
 
         }
       )
+
+      /**
+         * Particles
+         */
+      // Geometry
+      const particlesGeometry = new THREE.BufferGeometry()
+      const count = 20000
+
+      const positions = new Float32Array(count * 3) // Multiply by 3 because each position is composed of 3 values (x, y, z)
+      const colors = new Float32Array(count * 3)
+
+      for (let i = 0; i < count * 3; i++) // Multiply by 3 for same reason
+      {
+        positions[i] = (Math.random() - 0.5) * 10 // Math.random() - 0.5 to have a random value between -0.5 and +0.5
+        colors[i] = Math.random()
+      }
+
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)) // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+
+      // Material
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.05,
+        sizeAttenuation: true
+      })
+      // Points
+      const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+      particlesMaterial.color = new THREE.Color('#00fdff')
+      particlesMaterial.depthWrite = false
+      particlesMaterial.blending = THREE.AdditiveBlending
+      particlesMaterial.vertexColors = true
+
+
+      /**
+* Textures
+*/
+      const textureLoaderParticle = new THREE.TextureLoader()
+      const particleTexture = textureLoaderParticle.load('assets/textures/matcaps/particles/2.png')
+
+      // ...
+
+      particlesMaterial.map = particleTexture
+      // particlesMaterial.map = particleTexture
+      particlesMaterial.transparent = true
+      particlesMaterial.alphaMap = particleTexture
+      // particlesMaterial.alphaTest = 0.001
+      particlesMaterial.depthWrite = false
+      scene.add(particles)
 
       /**
        * Sizes
@@ -254,6 +236,8 @@ export class PlaygroundComponent implements OnInit {
       const tick = () => {
         const elapsedTime = clock.getElapsedTime()
 
+        // Update particles
+        particles.rotation.y = elapsedTime * 0.1
 
         // Update controls
         controls.update()
