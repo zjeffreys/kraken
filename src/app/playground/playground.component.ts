@@ -132,6 +132,8 @@ export class PlaygroundComponent implements OnInit {
           // particlesMaterial.map = particleTexture
           particlesMaterial.transparent = true
           particlesMaterial.alphaMap = particleTexture
+          // particlesMaterial.alphaTest = 0.001
+          particlesMaterial.depthWrite = false
           scene.add(particles)
           
 
@@ -233,6 +235,7 @@ export class PlaygroundComponent implements OnInit {
       // Controls
       const controls = new OrbitControls(camera, this.canvas.nativeElement)
       controls.enableDamping = true
+      // controls.autoRotate = true
 
       /**
        * Renderer
