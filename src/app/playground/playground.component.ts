@@ -103,10 +103,13 @@ export class PlaygroundComponent implements OnInit {
       // const material = new THREE.MeshNormalMaterial()
       // material.flatShading = true
       // const material = new THREE.MeshMatcapMaterial()
-      const material = new THREE.MeshPhongMaterial()
-      material.shininess = 100
-      material.specular = new THREE.Color(0x1188ff)
-      // material.matcap = matcapTexture
+      // const material = new THREE.MeshPhongMaterial()
+      // material.shininess = 100
+      // material.specular = new THREE.Color(0x1188ff)
+      const material = new THREE.MeshStandardMaterial()
+      material.metalness = 0.45
+      material.roughness = 0.65
+
 
       var cube = new THREE.Mesh(geometry, material);
       var object2 = new THREE.Mesh(geometry2, material);
