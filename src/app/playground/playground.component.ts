@@ -107,8 +107,8 @@ export class PlaygroundComponent implements OnInit {
       // material.shininess = 100
       // material.specular = new THREE.Color(0x1188ff)
       const material = new THREE.MeshStandardMaterial()
-      material.metalness = 0.45
-      material.roughness = 0.65
+      material.metalness = 0.75
+      material.roughness = 0.00
 
 
       var cube = new THREE.Mesh(geometry, material);
@@ -158,6 +158,8 @@ export class PlaygroundComponent implements OnInit {
       gui.add(cube, 'visible')
       gui.add(material, 'wireframe')
       gui.add(parameters, 'spin')
+      gui.add(material, 'metalness').min(0).max(1).step(0.0001)
+      gui.add(material, 'roughness').min(0).max(1).step(0.0001)
 
       gui
         .addColor(parameters, 'color')
