@@ -1,6 +1,8 @@
 import { Component, ElementRef, NgZone, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as THREE from 'three';
+import gsap from 'gsap';
+import * as dat from 'lil-gui'
 
 @Component({
   selector: 'app-playground',
@@ -15,6 +17,14 @@ export class PlaygroundComponent implements OnInit {
 
   ngOnInit() {
     this.zone.runOutsideAngular(() => {
+
+      const parameters = {
+        color: 0xff0000,
+        spin: () =>
+    {
+        gsap.to(cube.rotation, { duration: 1, y: cube.rotation.y + Math.PI * 2 })
+    }
+    }
 
       // SCENE
       const scene = new THREE.Scene();
@@ -38,20 +48,10 @@ export class PlaygroundComponent implements OnInit {
 
       // OBJECTS
       // Create an empty BufferGeometry
-      const geometry = new THREE.BufferGeometry()
+      const geometry = new THREE.BoxGeometry(1,1,1,2, 2, 2)
 
       // Create 50 triangles (450 values)
-      const count = 50
-      const positionsArray = new Float32Array(count * 3 * 3)
-      for (let i = 0; i < count * 3 * 3; i++) {
-        positionsArray[i] = (Math.random() - 0.5) * 4
-      }
-
-      // Create the attribute and name it 'position'
-      const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3)
-      geometry.setAttribute('position', positionsAttribute)
-      //End triangle
-      const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+      const material = new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
 
       var cube = new THREE.Mesh(geometry, material);
       // cube.position.set(0, 0, -300);
@@ -62,8 +62,6 @@ export class PlaygroundComponent implements OnInit {
       // Controls
       const controls = new OrbitControls(camera, this.canvas.nativeElement)
       controls.enableDamping = true
-
-      console.log("Testing Resize:")
 
       var sizes = {
         width: window.innerWidth,
@@ -82,39 +80,34 @@ export class PlaygroundComponent implements OnInit {
         renderer.setSize(sizes.width, sizes.height)
       })
 
-
       // const clock = new THREE.Clock()
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1))
       function animate() {
-        // Time
-        // const elapsedTime = clock.getElapsedTime()
 
-        // Update objects
-
-        // cube.position.x = Math.cos(elapsedTime) * 40
-        // cube.position.y = Math.sin(elapsedTime) * 40
-        // cube.rotateX(cursor.x * .05);
-        // cube.rotateX(cursor.y * .05);
-        // cube.rotateZ(cursor.x * .05);
-        // camera.position.x = cursor.x * 5
-        // camera.position.y = cursor.y * 5
-        // camera.lookAt(cube.position)
-        // Update camera
-        //   camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 2
-        //   camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 2
-        //   camera.position.y = cursor.y * 3
         camera.lookAt(cube.position)
-
-
-
-
         controls.update()
         renderer.render(scene, camera);
         window.requestAnimationFrame(animate)
       }
+      // VISUAL DEBUGGER TOOL 
+      const gui = new dat.GUI()
+      gui.add(cube.position, 'y').min(- 3).max(3).step(0.01).name('elevation')
+      gui.add(cube, 'visible')
+      gui.add(material, 'wireframe')
+      gui.add(parameters, 'spin')
+    
+    gui
+        .addColor(parameters, 'color')
+        .onChange(() =>
+        {
+            material.color.set(parameters.color)
+        })
+
+
+
+
+
       animate();
-
-
     })
   }
 }
