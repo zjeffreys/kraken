@@ -51,7 +51,8 @@ const matcapTexture = textureLoader.load('assets/textures/matcaps/7.png')
 const fontLoader = new FontLoader()
 
 fontLoader.load(
-    'assets/fonts/helvetiker_regular.typeface.json',
+    // 'assets/fonts/helvetiker_regular.typeface.json',
+    'assets/fonts/Luckiest_Guy_Regular.js',
     (font) =>
     {
         // Material
@@ -59,7 +60,7 @@ fontLoader.load(
         // Text
 
         const textGeometry = new TextGeometry(
-            'Krypto \nKraken',
+            'Crypto\nKraken',
             {
                 font: font,
                 size: 0.5,
