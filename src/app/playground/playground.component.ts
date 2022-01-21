@@ -3,7 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as THREE from 'three';
 import gsap from 'gsap';
 import * as dat from 'lil-gui'
-
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 @Component({
   selector: 'app-playground',
@@ -18,17 +19,15 @@ export class PlaygroundComponent implements OnInit {
 
   ngOnInit() {
     this.zone.runOutsideAngular(() => {
+    
 
-      const parameters = {
-        color: 0xff0000,
-        spin: () => {
-          gsap.to(cube.rotation, { duration: 1, y: cube.rotation.y + Math.PI * 2 })
-        }
-      }
 
-      // SCENE
-      const scene = new THREE.Scene();
-      const axesHelper = new THREE.AxesHelper(5);
+// Canvas
+// const canvas = document.querySelector('canvas.webgl')
+
+// Scene
+const scene = new THREE.Scene()
+const axesHelper = new THREE.AxesHelper(5);
       scene.add(axesHelper);
       // Lighting 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
@@ -40,139 +39,180 @@ export class PlaygroundComponent implements OnInit {
       scene.add(pointLight)
 
 
-      // CAMERA
-      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+/**
+ * Textures
+ */
+const textureLoader = new THREE.TextureLoader()
+const matcapTexture = textureLoader.load('assets/textures/matcaps/7.png')
 
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader()
 
-      // RENDERER
-      const renderer = new THREE.WebGLRenderer({
-        canvas: this.canvas.nativeElement,
-        alpha: true
-      });
-      // renderer.setClearColor( 0x000000, 0 ); // the default
-      renderer.setSize(window.innerWidth, window.innerHeight);
+fontLoader.load(
+    'assets/fonts/helvetiker_regular.typeface.json',
+    (font) =>
+    {
+        // Material
+        const material = new THREE.MeshMatcapMaterial({ matcap: matcapTexture })
+        // Text
 
+        const textGeometry = new TextGeometry(
+            'Krypto \nKraken',
+            {
+                font: font,
+                size: 0.5,
+                height: 0.2,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 5
+            }
+        )
+        textGeometry.center()
 
+        const blockGeometry = new THREE.OctahedronGeometry(.25)
+        const text = new THREE.Mesh(textGeometry, material)
+        const materialBlock = new THREE.MeshStandardMaterial({  })
+        materialBlock.metalness = 0.75
+        materialBlock.roughness = 0.00
+        materialBlock.color.set(0x00fdff)
+        
+        // materialBlock.color = new THREE.Color( 0xff0faf )
+        
+        const block = new THREE.Mesh(blockGeometry, materialBlock)
+        scene.add(text)
 
-      // OBJECTS
-      // Create an empty BufferGeometry
-      // const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
-      const geometry = new THREE.SphereGeometry(1);
-      const geometry2 = new THREE.TorusGeometry(1, 0.35, 32, 100)
+        // blocks
+       
 
+        for(let i = 0; i < 100; i++)
+        {
+            const block = new THREE.Mesh(blockGeometry, materialBlock)
+            block.position.x = (Math.random() - 0.5) * 10
+            block.position.y = (Math.random() - 0.5) * 10
+            block.position.z = (Math.random() - 0.5) * 10
+            block.rotation.x = Math.random() * Math.PI
+            block.rotation.y = Math.random() * Math.PI
+            const scale = Math.random()
+            block.scale.set(scale, scale, scale)
 
-      // Create 50 triangles (450 values)
-      // const material = new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
+            scene.add(block)
+        }
+        /**
+          * Base
+          */
+          // Debug
+          const parameters = {
+            color: 0xff0000,
+            spinText: () => {
+              gsap.to(text.rotation, { duration: 1, y: text.rotation.y + Math.PI * 2 })
+            }
+          }
+          const parametersBlocks = {
+            color: 0x00fdff,
+            spinBlocks: () => {
+              gsap.to(block.rotation, { duration: 1, y: block.rotation.y + Math.PI * 2 })
+             
+            }
+          }
+          const gui = new dat.GUI()
+          gui.add(text.position, 'y').min(- 3).max(3).step(0.01).name('text y-axis')
+          gui.add(text, 'visible')
+          gui.add(materialBlock, 'wireframe') 
+          gui.add(parameters, 'spinText')
+          gui.add(parametersBlocks, 'spinBlocks')
+          gui.add(block.position, 'y').min(- 3).max(3).step(0.01).name('blocks y-axis')
+          gui.add(block, 'visible')
+         
+          gui.add(materialBlock, 'metalness').min(0).max(1).step(0.0001)
+          gui.add(materialBlock, 'roughness').min(0).max(1).step(0.0001)
+    
+          gui
+            .addColor(parameters, 'color')
+            .onChange(() => {
+              material.color.set(parameters.color)
+            })
+            gui
+            .addColor(parametersBlocks, 'color')
+            .onChange(() => {
+              materialBlock.color.set(parametersBlocks.color)
+            })
+          
+    }
+)
 
+/**
+ * Sizes
+ */
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
 
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
 
-      // Textures
-      const loadingManager = new THREE.LoadingManager()
-      loadingManager.onStart = () => {
-        console.log('loading started')
-      }
-      loadingManager.onLoad = () => {
-        console.log('loading finished')
-      }
-      loadingManager.onProgress = () => {
-        console.log('loading progressing')
-      }
-      loadingManager.onError = () => {
-        console.log('loading error')
-      }
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
 
-      const textureLoader = new THREE.TextureLoader(loadingManager)
-      // ...
-      const TEXTURES = 'assets/textures/'
-      const colorTexture = textureLoader.load(TEXTURES.concat('door/color.jpg'))
-      const alphaTexture = textureLoader.load(TEXTURES.concat('door/alpha.jpg'))
-      const heightTexture = textureLoader.load(TEXTURES.concat('door/height.jpg'))
-      const normalTexture = textureLoader.load(TEXTURES.concat('door/normal.jpg'))
-      const ambientOcclusionTexture = textureLoader.load(TEXTURES.concat('door/ambientOcclusion.jpg'))
-      const metalnessTexture = textureLoader.load(TEXTURES.concat('door/metalness.jpg'))
-      const roughnessTexture = textureLoader.load(TEXTURES.concat('door/roughness.jpg'))
-      const checker1 = textureLoader.load(TEXTURES.concat('checkerboard-8x8.png'))
-      const checker2 = textureLoader.load(TEXTURES.concat('checkerboard-1024x1024.png'))
-      const minecraft = textureLoader.load(TEXTURES.concat('minecraft.png'))
-      const matcapTexture = textureLoader.load(TEXTURES.concat('matcaps/1.png'))
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
 
-      // minecraft.generateMipmaps = false
-      // minecraft.magFilter = THREE.NearestFilter
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 1
+camera.position.y = 1
+camera.position.z = 2
+scene.add(camera)
 
-      // const material = new THREE.MeshBasicMaterial({ map: minecraft })
-      // const material = new THREE.MeshNormalMaterial()
-      // material.flatShading = true
-      // const material = new THREE.MeshMatcapMaterial()
-      // const material = new THREE.MeshPhongMaterial()
-      // material.shininess = 100
-      // material.specular = new THREE.Color(0x1188ff)
-      const material = new THREE.MeshStandardMaterial()
-      material.metalness = 0.75
-      material.roughness = 0.00
+// Controls
+const controls = new OrbitControls(camera, this.canvas.nativeElement)
+controls.enableDamping = true
 
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer({
+    canvas: this.canvas.nativeElement
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-      var cube = new THREE.Mesh(geometry, material);
-      var object2 = new THREE.Mesh(geometry2, material);
-      object2.position.setX(4)
-      // cube.position.set(0, 0, -300);
-      scene.add(cube);
-      scene.add(object2);
+/**
+ * Animate
+ */
+const clock = new THREE.Clock()
 
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+ 
 
+    // Update controls
+    controls.update()
 
-      camera.position.z = 8
-      camera.lookAt(cube.position);
-      // Controls
-      const controls = new OrbitControls(camera, this.canvas.nativeElement)
-      controls.enableDamping = true
+    // Render
+    renderer.render(scene, camera)
 
-      var sizes = {
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
-      window.addEventListener('resize', (event) => {
-        // Update sizes
-        sizes.width = window.innerWidth
-        sizes.height = window.innerHeight
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
 
-        // Update camera
-        camera.aspect = sizes.width / sizes.height
-        camera.updateProjectionMatrix()
-
-        // Update renderer
-        renderer.setSize(sizes.width, sizes.height)
-      })
-
-      // const clock = new THREE.Clock()
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1))
-      function animate() {
-
-        camera.lookAt(cube.position)
-        controls.update()
-        renderer.render(scene, camera);
-        window.requestAnimationFrame(animate)
-      }
-      // VISUAL DEBUGGER TOOL 
-      const gui = new dat.GUI()
-      gui.add(cube.position, 'y').min(- 3).max(3).step(0.01).name('elevation')
-      gui.add(cube, 'visible')
-      gui.add(material, 'wireframe')
-      gui.add(parameters, 'spin')
-      gui.add(material, 'metalness').min(0).max(1).step(0.0001)
-      gui.add(material, 'roughness').min(0).max(1).step(0.0001)
-
-      gui
-        .addColor(parameters, 'color')
-        .onChange(() => {
-          // change back to find color debugger issue
-          // material.color.set(parameters.color)
-        })
-
-
-
-
-
-      animate();
+tick()
+      
     })
   }
 }
