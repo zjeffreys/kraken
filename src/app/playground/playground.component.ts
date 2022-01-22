@@ -5,6 +5,8 @@ import gsap from 'gsap';
 import * as dat from 'lil-gui'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
 @Component({
   selector: 'app-playground',
@@ -19,43 +21,32 @@ export class PlaygroundComponent implements OnInit {
 
   ngOnInit() {
     this.zone.runOutsideAngular(() => {
+      const gui = new dat.GUI()
+      const scene = new THREE.Scene()
 
       const parametersBackground = {
-        color: '#122a42',
+        color: '#122a42'
       }
+      //       const scene = new THREE.Scene()
+      //       const axesHelper = new THREE.AxesHelper(5);
+      //       scene.add(axesHelper);
+      //       // Lighting 
+      //       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+      //       scene.add(ambientLight)
 
-
-
-      // Canvas
-      // const canvas = document.querySelector('canvas.webgl')
-
-      // Scene
-      const scene = new THREE.Scene()
-      const axesHelper = new THREE.AxesHelper(5);
-      scene.add(axesHelper);
-      // Lighting 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-      scene.add(ambientLight)
-      // const pointLight = new THREE.PointLight(0xffffff, 0.5)
-      // pointLight.position.x = 2
-      // pointLight.position.y = 3
-      // pointLight.position.z = 4
-      // scene.add(pointLight)
-      const spotLight = new THREE.SpotLight(0x78ff00, 0.5, 10, Math.PI * 0.1, 0.25, 1)
-      spotLight.position.set(0, 2, 3)
-      scene.add(spotLight)
-
-
+      //       const spotLight = new THREE.SpotLight(0x78ff00, 0.5, 10, Math.PI * 0.1, 0.25, 1)
+      //       spotLight.position.set(0, 2, 3)
+      //       scene.add(spotLight)
       /**
        * Textures
        */
-      const textureLoader = new THREE.TextureLoader()
-      const matcapTexture = textureLoader.load('assets/textures/matcaps/7.png')
+      const textureLoader = new THREE.TextureLoader();
+      const matcapTexture = textureLoader.load('assets/textures/matcaps/7.png');
 
       /**
        * Fonts
        */
-      const fontLoader = new FontLoader()
+      const fontLoader = new FontLoader(); 
 
       fontLoader.load(
         // 'assets/fonts/helvetiker_regular.typeface.json',
@@ -80,177 +71,308 @@ export class PlaygroundComponent implements OnInit {
             }
           )
           textGeometry.center()
-
-          // const blockGeometry = new THREE.OctahedronGeometry(.25)
           const text = new THREE.Mesh(textGeometry, material)
           const materialBlock = new THREE.MeshStandardMaterial({})
+
+          // const blockGeometry = new THREE.OctahedronGeometry(.25)
+         
           materialBlock.metalness = 0.75
           materialBlock.roughness = 0.00
           materialBlock.color.set(0x00fdff)
-
           scene.add(text)
           scene.background = materialBlock.color.set(parametersBackground.color)
 
-          /**
-            * Base
-            */
-          // Debug
           const parameters = {
             color: 0xff0000,
             spinText: () => {
               gsap.to(text.rotation, { duration: 1, y: text.rotation.y + Math.PI * 2 })
             }
           }
+        }); 
 
+          /**
+             * Particles
+             */
+          // Geometry
+          const particlesGeometry = new THREE.BufferGeometry(); 
+          const count = 20000; 
 
-          const gui = new dat.GUI()
-          gui.close()
-          gui.addColor(parametersBackground, 'color').onChange(() => {
-            scene.background = materialBlock.color.set(parametersBackground.color)
+          const positions = new Float32Array(count * 3) // Multiply by 3 because each position is composed of 3 values (x, y, z)
+          const colors = new Float32Array(count * 3)
+
+          for (let i = 0; i < count * 3; i++) // Multiply by 3 for same reason
+          {
+            positions[i] = (Math.random() - 0.5) * 10 // Math.random() - 0.5 to have a random value between -0.5 and +0.5
+            colors[i] = Math.random()
+          }
+
+          particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)) // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
+          particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+
+          // Material
+          const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            sizeAttenuation: true
           })
-          gui.add(text.position, 'y').min(- 3).max(3).step(0.01).name('text y-axis')
-          gui.add(text, 'visible')
-          gui.add(materialBlock, 'wireframe')
-          gui.add(parameters, 'spinText')
-          // gui.add(parametersBlocks, 'spinBlocks')
-          // gui.add(block.position, 'y').min(- 3).max(3).step(0.01).name('blocks y-axis')
-          // gui.add(block, 'visible')
+          // Points
+          const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+          particlesMaterial.color = new THREE.Color('#00fdff')
+          particlesMaterial.depthWrite = false
+          particlesMaterial.blending = THREE.AdditiveBlending
+          particlesMaterial.vertexColors = true
 
-          // gui.add(materialBlock, 'metalness').min(0).max(1).step(0.0001)
-          // gui.add(materialBlock, 'roughness').min(0).max(1).step(0.0001)
 
-          gui
-            .addColor(parameters, 'color')
-            .onChange(() => {
-              material.color.set(parameters.color)
-            })
-          // gui
-          //   .addColor(parametersBlocks, 'color')
-          //   .onChange(() => {
-          //     materialBlock.color.set(parametersBlocks.color)
+          /**
+    * Textures
+    */
+          const textureLoaderParticle = new THREE.TextureLoader()
+          const particleTexture = textureLoaderParticle.load('assets/textures/matcaps/particles/2.png')
+
+          // ...
+
+          particlesMaterial.map = particleTexture
+          // particlesMaterial.map = particleTexture
+          particlesMaterial.transparent = true
+          particlesMaterial.alphaMap = particleTexture
+          // particlesMaterial.alphaTest = 0.001
+          particlesMaterial.depthWrite = false
+
+
+          /**
+           * Sizes
+           */
+          //  scene.add(particles)
+          // const sizes = {
+          //   width: window.innerWidth,
+          //   height: window.innerHeight
+          // }
+
+          // window.addEventListener('resize', () => {
+          //   // Update sizes
+          //   sizes.width = window.innerWidth
+          //   sizes.height = window.innerHeight
+
+          //   // Update camera
+          //   camera.aspect = sizes.width / sizes.height
+          //   camera.updateProjectionMatrix()
+
+          //   // Update renderer
+          //   renderer.setSize(sizes.width, sizes.height)
+          //   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+          //   renderer.shadowMap.enabled = true
+          // })
+
+          //       /**
+          //        * Camera
+          //        */
+          //       // Base camera
+          //       const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+          //       camera.position.x = 1
+          //       camera.position.y = 1
+          //       camera.position.z = 2
+          //       scene.add(camera)
+
+          //       // Controls
+          //       const controls = new OrbitControls(camera, this.canvas.nativeElement)
+          //       controls.enableDamping = true
+          //       // controls.autoRotate = true
+
+          //       /**
+          //        * Renderer
+          //        */
+          //       const renderer = new THREE.WebGLRenderer({
+          //         canvas: this.canvas.nativeElement
+          //       })
+          //       renderer.setSize(sizes.width, sizes.height)
+          //       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+          //       /**
+          //        * Animate
+          //        */
+          //       const clock = new THREE.Clock()
+
+          //       const tick = () => {
+          //         const elapsedTime = clock.getElapsedTime()
+
+          //         // Update particles
+          //         particles.rotation.y = elapsedTime * 0.1
+
+          //         // Update controls
+          //         controls.update()
+
+          //         // Render
+          //         renderer.render(scene, camera)
+
+          //         // Call tick again on the next frame
+          //         window.requestAnimationFrame(tick)
+          //       }
+
+          //       tick()
+
+          /*------------------------------- KRAKEN DRAWING BEGIN ------------------------------- */
+          /**
+           * Base
+           */
+          // Debug
+         
+
+          /**
+           * 
+           * above that needed to moved here to show text
+           */
+        
+          scene.add(particles)
+         
+          /**
+           * Floor
+           */
+          // const floor = new THREE.Mesh(
+          //   // new THREE.PlaneGeometry(10, 10),
+          //   new THREE.MeshStandardMaterial({
+          //     color: '#444444',
+          //     metalness: 0,
+          //     roughness: 0.5
           //   })
-
-        }
-      )
-
-      /**
-         * Particles
-         */
-      // Geometry
-      const particlesGeometry = new THREE.BufferGeometry()
-      const count = 20000
-
-      const positions = new Float32Array(count * 3) // Multiply by 3 because each position is composed of 3 values (x, y, z)
-      const colors = new Float32Array(count * 3)
-
-      for (let i = 0; i < count * 3; i++) // Multiply by 3 for same reason
-      {
-        positions[i] = (Math.random() - 0.5) * 10 // Math.random() - 0.5 to have a random value between -0.5 and +0.5
-        colors[i] = Math.random()
-      }
-
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)) // Create the Three.js BufferAttribute and specify that each information is composed of 3 values
-      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-
-      // Material
-      const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.05,
-        sizeAttenuation: true
-      })
-      // Points
-      const particles = new THREE.Points(particlesGeometry, particlesMaterial)
-      particlesMaterial.color = new THREE.Color('#00fdff')
-      particlesMaterial.depthWrite = false
-      particlesMaterial.blending = THREE.AdditiveBlending
-      particlesMaterial.vertexColors = true
+          // )
+          // floor.receiveShadow = true
+          // floor.rotation.x = - Math.PI * 0.5
+          // scene.add(floor)
+          
 
 
-      /**
-* Textures
-*/
-      const textureLoaderParticle = new THREE.TextureLoader()
-      const particleTexture = textureLoaderParticle.load('assets/textures/matcaps/particles/2.png')
+          /**
+           * 3-D Models
+           */
+          const gltfLoader = new GLTFLoader()
+          const dracoLoader = new DRACOLoader()
+          gltfLoader.setDRACOLoader(dracoLoader)
+          dracoLoader.setDecoderPath('assets/draco/')
+          let mixer: THREE.AnimationMixer | null = null
+          gltfLoader.load(
+            // 'assets/models/Duck/glTF/Duck.gltf',
+            // 'assets/models/FlightHelmet/glTF/FlightHelmet.gltf',
+            // 'assets/models/Duck/glTF-Draco/Duck.gltf',
+            'assets/models/Kraken/3D_Kraken1glb.glb',
+            (gltf) => {
+              // while(gltf.scene.children.length)
+              // {
+              //     scene.add(gltf.scene.children[0])
+              // }
+              // mixer = new THREE.AnimationMixer(gltf.scene)
+              // const action = mixer.clipAction(gltf.animations[2])
+              gltf.scene.scale.set(.5, .5, .5)
+              gltf.scene.translateY(-5)
 
-      // ...
+              scene.add(gltf.scene)
+              // action.play()
 
-      particlesMaterial.map = particleTexture
-      // particlesMaterial.map = particleTexture
-      particlesMaterial.transparent = true
-      particlesMaterial.alphaMap = particleTexture
-      // particlesMaterial.alphaTest = 0.001
-      particlesMaterial.depthWrite = false
-      scene.add(particles)
+            },
+            (progress) => {
+              console.log('progress')
+              console.log(progress)
+            },
+            (error) => {
+              console.log('error')
+              console.log(error)
+            }
+          )
 
-      /**
-       * Sizes
-       */
-      const sizes = {
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
 
-      window.addEventListener('resize', () => {
-        // Update sizes
-        sizes.width = window.innerWidth
-        sizes.height = window.innerHeight
 
-        // Update camera
-        camera.aspect = sizes.width / sizes.height
-        camera.updateProjectionMatrix()
 
-        // Update renderer
-        renderer.setSize(sizes.width, sizes.height)
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        renderer.shadowMap.enabled = true
-      })
+          /**
+           * Lights
+           */
+          const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+          scene.add(ambientLight)
 
-      /**
-       * Camera
-       */
-      // Base camera
-      const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-      camera.position.x = 1
-      camera.position.y = 1
-      camera.position.z = 2
-      scene.add(camera)
+          const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+          directionalLight.castShadow = true
+          directionalLight.shadow.mapSize.set(1024, 1024)
+          directionalLight.shadow.camera.far = 15
+          directionalLight.shadow.camera.left = - 7
+          directionalLight.shadow.camera.top = 7
+          directionalLight.shadow.camera.right = 7
+          directionalLight.shadow.camera.bottom = - 7
+          directionalLight.position.set(5, 5, 5)
+          scene.add(directionalLight)
 
-      // Controls
-      const controls = new OrbitControls(camera, this.canvas.nativeElement)
-      controls.enableDamping = true
-      // controls.autoRotate = true
+          /**
+           * Sizes
+           */
+          const sizes = {
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
 
-      /**
-       * Renderer
-       */
-      const renderer = new THREE.WebGLRenderer({
-        canvas: this.canvas.nativeElement
-      })
-      renderer.setSize(sizes.width, sizes.height)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+          window.addEventListener('resize', () => {
+            // Update sizes
+            sizes.width = window.innerWidth
+            sizes.height = window.innerHeight
 
-      /**
-       * Animate
-       */
-      const clock = new THREE.Clock()
+            // Update camera
+            camera.aspect = sizes.width / sizes.height
+            camera.updateProjectionMatrix()
 
-      const tick = () => {
-        const elapsedTime = clock.getElapsedTime()
+            // Update renderer
+            renderer.setSize(sizes.width, sizes.height)
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+          })
 
-        // Update particles
-        particles.rotation.y = elapsedTime * 0.1
+          /**
+           * Camera
+           */
+          // Base camera
+          const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+          camera.position.set(2, 2, 2)
+          scene.add(camera)
 
-        // Update controls
-        controls.update()
+          // Controls
+          const controls = new OrbitControls(camera, this.canvas.nativeElement)
+          controls.target.set(0, 0.75, 0)
+          controls.enableDamping = true
 
-        // Render
-        renderer.render(scene, camera)
+          /**
+           * Renderer
+           */
+          const renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas.nativeElement
+          })
+          renderer.shadowMap.enabled = true
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap
+          renderer.setSize(sizes.width, sizes.height)
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-        // Call tick again on the next frame
-        window.requestAnimationFrame(tick)
-      }
+          /**
+           * Animate
+           */
+          const clock = new THREE.Clock()
+          let previousTime = 0
 
-      tick()
+          const tick = () => {
+            const elapsedTime = clock.getElapsedTime()
+            const deltaTime = elapsedTime - previousTime
+            previousTime = elapsedTime
 
-    })
-  }
+            if (mixer) {
+              mixer.update(deltaTime)
+            }
+
+             // Update particles
+             particles.rotation.y = elapsedTime * 0.1
+            // Update controls
+            controls.update()
+
+            // Render
+            renderer.render(scene, camera)
+
+            // Call tick again on the next frame
+            window.requestAnimationFrame(tick)
+          }
+
+          tick()
+
+          /*------------------------------- KRAKEN DRAWING END------------------------------- */
+        })
+    }
 }
