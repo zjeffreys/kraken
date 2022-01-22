@@ -25,7 +25,7 @@ export class PlaygroundComponent implements OnInit {
       const scene = new THREE.Scene()
 
       const parametersBackground = {
-        color: '#122a42'
+        color: '#b160e6'
       }
       //       const scene = new THREE.Scene()
       //       const axesHelper = new THREE.AxesHelper(5);
