@@ -246,36 +246,26 @@ export class PlaygroundComponent implements OnInit {
           const gltfLoader = new GLTFLoader()
           const dracoLoader = new DRACOLoader()
           gltfLoader.setDRACOLoader(dracoLoader)
-          dracoLoader.setDecoderPath('assets/draco/')
+          // dracoLoader.setDecoderPath('assets/draco/')
           let mixer: THREE.AnimationMixer | null = null
           gltfLoader.load(
-            // 'assets/models/Duck/glTF/Duck.gltf',
-            // 'assets/models/FlightHelmet/glTF/FlightHelmet.gltf',
-            // 'assets/models/Duck/glTF-Draco/Duck.gltf',
-            'assets/models/Kraken/kraken3D_v2.glb',
+            'assets/models/Kraken/3D_Kraken1glb.glb',
             (gltf) => {
-              // while(gltf.scene.children.length)
-              // {
-              //     scene.add(gltf.scene.children[0])
-              // }
-              // mixer = new THREE.AnimationMixer(gltf.scene)
-              // const action = mixer.clipAction(gltf.animations[2])
-              gltf.scene.scale.set(.25, .25, .25)
+              gltf.scene.scale.set(.5, .5, .5)
               gltf.scene.translateY(-5)
-
+              gltf.scene.translateX(-10)
               scene.add(gltf.scene)
-              // action.play()
-
-            },
-            (progress) => {
-              console.log('progress')
-              console.log(progress)
-            },
-            (error) => {
-              console.log('error')
-              console.log(error)
             }
           )
+          gltfLoader.load(
+            'assets/models/Kraken/kraken3D_v2.glb',
+            (gltf) => {
+              gltf.scene.scale.set(.25, .25, .25)
+              gltf.scene.translateY(-5)
+              scene.add(gltf.scene)
+            }
+          )
+          
 
 
 
