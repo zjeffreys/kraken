@@ -25,7 +25,7 @@ export class PlaygroundComponent implements OnInit {
       const scene = new THREE.Scene()
 
       const parametersBackground = {
-        color: '#b160e6'
+        color: '#74ccf4'
       }
       //       const scene = new THREE.Scene()
       //       const axesHelper = new THREE.AxesHelper(5);
@@ -252,7 +252,7 @@ export class PlaygroundComponent implements OnInit {
             // 'assets/models/Duck/glTF/Duck.gltf',
             // 'assets/models/FlightHelmet/glTF/FlightHelmet.gltf',
             // 'assets/models/Duck/glTF-Draco/Duck.gltf',
-            'assets/models/Kraken/3D_Kraken1glb.glb',
+            'assets/models/Kraken/kraken3D_v2.glb',
             (gltf) => {
               // while(gltf.scene.children.length)
               // {
@@ -260,7 +260,7 @@ export class PlaygroundComponent implements OnInit {
               // }
               // mixer = new THREE.AnimationMixer(gltf.scene)
               // const action = mixer.clipAction(gltf.animations[2])
-              gltf.scene.scale.set(.5, .5, .5)
+              gltf.scene.scale.set(.25, .25, .25)
               gltf.scene.translateY(-5)
 
               scene.add(gltf.scene)
